@@ -15,6 +15,8 @@ string myToStr(const pair<T, T>& p);
 template <class T>
 string myToStr(const set<T>& se);
 template <class T>
+string myToStr(const multiset<T>& se);
+template <class T>
 string myToStr(const vector<T>& vec);
 template <class T, class U>
 string myToStr(const map<T, U>& mp);
@@ -59,6 +61,18 @@ string myToStr(const vector<T>& vec) {
 
 template <class T>
 string myToStr(const set<T>& se) {
+    string ret = "{";
+    int cnt=0; //もっと良い書き方はあるはず
+    for(auto e: se) {
+        ret += myToStr(e);
+        if(++cnt < se.size()) ret += ", ";
+    }
+    ret += "}";
+    return ret;
+}
+
+template <class T>
+string myToStr(const multiset<T>& se) {
     string ret = "{";
     int cnt=0; //もっと良い書き方はあるはず
     for(auto e: se) {
