@@ -217,7 +217,7 @@ template <std::uint_fast64_t Modulus> class modint {
         return *this;
     }
 
-    constexpr modint pow(int64_t t) noexcept {
+    constexpr modint pow(u64 t) noexcept {
         if(t==0) return 1;
         modint a = pow(t>>1);
         a *= a;
@@ -230,15 +230,15 @@ template <std::uint_fast64_t Modulus> class modint {
     friend std::istream &operator>>(std::istream &is, modint &x) { u64 t; is >> t; x = modint(t); return is; }
     friend std::ostream &operator<<(std::ostream &os, const modint &x) { os << x.value;  return os; }
 
-    static modint calcPermutation(int64_t n, int64_t r){
+    static modint calcPermutation(u64 n, u64 r){
         modint res = 1;
-        for(int64_t i = 0; i < r; ++i){
+        for(u64 i = 0; i < r; ++i){
             res *= (n - i);
         }
         return res;
     }
 
-    static modint calcCombination(int64_t n, int64_t r) {
+    static modint calcCombination(u64 n, u64 r) {
         assert(n<Modulus);
         static vector<modint> factorial, factorial_inv;
         if (factorial.size() == 0) {
