@@ -2,6 +2,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+template<std::uint_fast64_t Modulus> class modint;
 /*========== output utilities ===========*/
 
 template <class T>
@@ -22,6 +24,11 @@ string myToStr(const vector<vector<T>>& vec);
 template <class T>
 string myToStr(const T& misc) {
     return to_string(misc);
+}
+
+template<std::uint_fast64_t Modulus>
+string myToStr(const modint<Modulus>& modint) {
+    return myToStr(modint.value);
 }
 
 string myToStr(const char* c) {
@@ -166,53 +173,83 @@ class range {
 };
 
 template <std::uint_fast64_t Modulus> class modint {
-  using u64 = std::uint_fast64_t;
+    using u64 = std::uint_fast64_t;
+    public:
+    u64 value;
 
-public:
-  u64 a;
+    constexpr modint(const u64 x = 0) noexcept : value(x % Modulus) {}
+    constexpr modint operator+(const modint rhs) const noexcept {
+        return modint(*this) += rhs;
+    }
+    constexpr modint operator-(const modint rhs) const noexcept {
+        return modint(*this) -= rhs;
+    }
+    constexpr modint operator*(const modint rhs) const noexcept {
+        return modint(*this) *= rhs;
+    }
+    constexpr modint operator/(const modint rhs) const noexcept {
+        return modint(*this) /= rhs;
+    }
+    constexpr modint &operator+=(const modint rhs) noexcept {
+        value += rhs.value;
+        if (value >= Modulus) {
+            value -= Modulus;
+        }
+        return *this;
+    }
+    constexpr modint &operator-=(const modint rhs) noexcept {
+        if (value < rhs.value) {
+            value += Modulus;
+        }
+        value -= rhs.value;
+        return *this;
+    }
+    constexpr modint &operator*=(const modint rhs) noexcept {
+        value = value * rhs.value % Modulus;
+        return *this;
+    }
+    constexpr modint &operator/=(modint rhs) noexcept {
+        if(value%rhs.value!=0) {
+            cout<<"modint error!: cannnot divide value ("<<value<<") by ("<<rhs.value<<")"<<endl;
+            exit(1);
+        }
+        value = value/rhs.value;
+        return *this;
+    }
 
-  constexpr modint(const u64 x = 0) noexcept : a(x % Modulus) {}
-  constexpr u64 &value() noexcept { return a; }
-  constexpr const u64 &value() const noexcept { return a; }
-  constexpr modint operator+(const modint rhs) const noexcept {
-    return modint(*this) += rhs;
-  }
-  constexpr modint operator-(const modint rhs) const noexcept {
-    return modint(*this) -= rhs;
-  }
-  constexpr modint operator*(const modint rhs) const noexcept {
-    return modint(*this) *= rhs;
-  }
-  constexpr modint operator/(const modint rhs) const noexcept {
-    return modint(*this) /= rhs;
-  }
-  constexpr modint &operator+=(const modint rhs) noexcept {
-    a += rhs.a;
-    if (a >= Modulus) {
-      a -= Modulus;
+    constexpr modint pow(int64_t t) noexcept {
+        if(t==0) return 1;
+        modint a = pow(t>>1);
+        a *= a;
+        if (t&1) a *= *this;
+        return a;
     }
-    return *this;
-  }
-  constexpr modint &operator-=(const modint rhs) noexcept {
-    if (a < rhs.a) {
-      a += Modulus;
+    constexpr modint inv() noexcept {
+        return pow(Modulus-2);
     }
-    a -= rhs.a;
-    return *this;
-  }
-  constexpr modint &operator*=(const modint rhs) noexcept {
-    a = a * rhs.a % Modulus;
-    return *this;
-  }
-  constexpr modint &operator/=(modint rhs) noexcept {
-    u64 exp = Modulus - 2;
-    while (exp) {
-      if (exp % 2) {
-        *this *= rhs;
-      }
-      rhs *= rhs;
-      exp /= 2;
+    friend std::istream &operator>>(std::istream &is, modint &x) { u64 t; is >> t; x = modint(t); return is; }
+    friend std::ostream &operator<<(std::ostream &os, const modint &x) { os << x.value;  return os; }
+
+    static modint calcPermutation(int64_t n, int64_t r){
+        modint res = 1;
+        for(int64_t i = 0; i < r; ++i){
+            res *= (n - i);
+        }
+        return res;
     }
-    return *this;
-  }
+
+    static modint calcCombination(int64_t n, int64_t r) {
+        assert(n<Modulus);
+        static vector<modint> factorial, factorial_inv;
+        if (factorial.size() == 0) {
+            int maxsize = 2000000;
+            factorial.resize(maxsize);
+            factorial_inv.resize(maxsize);
+            factorial[0] = 1;
+            for(int i=1; i<=maxsize; ++i) factorial[i] = factorial[i-1] * i;
+            factorial_inv[maxsize] = factorial[maxsize].inv();
+            for(int i=maxsize; i>=1; --i) factorial_inv[i-1] = factorial_inv[i] * i;
+        }
+        return factorial[n]*factorial_inv[r]*factorial_inv[n-r];
+    }
 };
