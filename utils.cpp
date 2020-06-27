@@ -3,7 +3,7 @@
 using namespace std;
 
 
-template<std::uint_fast64_t Modulus> class modint;
+template<std::int64_t Modulus> class modint;
 /*========== output utilities ===========*/
 
 template <class T>
@@ -28,7 +28,7 @@ string myToStr(const T& misc) {
     return to_string(misc);
 }
 
-template<std::uint_fast64_t Modulus>
+template<std::int64_t Modulus>
 string myToStr(const modint<Modulus>& modint) {
     return myToStr(modint.value);
 }
@@ -186,12 +186,11 @@ class range {
     I& end(){return n;}
 };
 
-template <std::uint_fast64_t Modulus> class modint {
-    using u64 = std::uint_fast64_t;
+template <std::int64_t Modulus> class modint {
     public:
-    u64 value;
+    int64_t value;
 
-    constexpr modint(const u64 x = 0) noexcept : value(x % Modulus) {}
+    constexpr modint(const int64_t x = 0) noexcept : value(x % Modulus) {assert(x >= 0);}
     constexpr modint operator+(const modint rhs) const noexcept {
         return modint(*this) += rhs;
     }
@@ -231,7 +230,7 @@ template <std::uint_fast64_t Modulus> class modint {
         return *this;
     }
 
-    constexpr modint pow(u64 t) noexcept {
+    constexpr modint pow(int64_t t) noexcept {
         if(t==0) return 1;
         modint a = pow(t>>1);
         a *= a;
@@ -241,18 +240,18 @@ template <std::uint_fast64_t Modulus> class modint {
     constexpr modint inv() noexcept {
         return pow(Modulus-2);
     }
-    friend std::istream &operator>>(std::istream &is, modint &x) { u64 t; is >> t; x = modint(t); return is; }
+    friend std::istream &operator>>(std::istream &is, modint &x) { int64_t t; is >> t; x = modint(t); return is; }
     friend std::ostream &operator<<(std::ostream &os, const modint &x) { os << x.value;  return os; }
 
-    static modint calcPermutation(u64 n, u64 r){
+    static modint calcPermutation(int64_t n, int64_t r){
         modint res = 1;
-        for(u64 i = 0; i < r; ++i){
+        for(int64_t i = 0; i < r; ++i){
             res *= (n - i);
         }
         return res;
     }
 
-    static modint calcCombination(u64 n, u64 r) {
+    static modint calcCombination(int64_t n, int64_t r) {
         assert(n<Modulus);
         static vector<modint> factorial, factorial_inv;
         if (factorial.size() == 0) {
